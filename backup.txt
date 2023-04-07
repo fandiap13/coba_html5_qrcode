@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>QR Code Scanner</title>
+  <script src="https://rawgit.com/mebjas/html5-qrcode/master/minified/html5-qrcode.min.js"></script>
+</head>
+
+<body>
+  <div>
+    <canvas id="qr-code-scanner"></canvas>
+  </div>
+  <input type="file" id="file-selector" accept="image/*" />
+  <button id="start-camera-button">Start Camera Scan</button>
+  <button id="stop-camera-button">Stop Camera Scan</button>
+  <button id="file-scan-button">File Scan</button>
+  <script>
+    var qrCodeScanner = document.getElementById("qr-code-scanner");
+    var fileSelector = document.getElementById("file-selector");
+    var startCameraButton = document.getElementById("start-camera-button");
+    var stopCameraButton = document.getElementById("stop-camera-button");
+    var fileScanButton = document.getElementById("file-scan-button");
+    var html5Qrcode;
+
+    startCameraButton.addEventListener("click", function () {
+      // Make sure we clear any ongoing camera scan before starting a new one
+      if (html5Qrcode) {
+        html5Qrcode.clear();
+      }
+
+      html5Qrcode = new Html5Qrcode("qr-code-scanner");
+
+      html5Qrcode
+        .start({ facingMode: "environment" })
+        .then(function () {
+          console.log("QR code scanner started successfully.");
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    });
+
+    stopCameraButton.addEventListener("click", function () {
+      if (html5Qrcode && html5Qrcode.isScanning()) {
+        html5Qrcode.stop().then(function () {
+          console.log("QR code scanner stopped successfully.");
+        });
+      } else {
+        console.log("QR code scanner is not running or paused.");
+      }
+    });
+
+    fileScanButton.addEventListener("click", function () {
+      if (html5Qrcode) {
+        fileSelector.click();
+      }
+    });
+
+    fileSelector.addEventListener("change", function () {
+      var file = fileSelector.files[0];
+      if (file) {
+        html5Qrcode.scanFile(file, true).then(function (result) {
+          console.log("QR code found:", result);
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>
